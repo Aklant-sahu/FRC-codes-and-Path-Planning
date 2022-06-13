@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -20,7 +22,7 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+// import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import com.kauailabs.navx.frc.AHRS;
@@ -44,26 +46,28 @@ public class DriveTrain extends SubsystemBase {
   RelativeEncoder encrightb;
 
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
-  private static final int kCPR = 8192;
+  // private static final int kCPR = 8192;
   PIDController controller;
   DifferentialDriveOdometry odom_drive;
   AHRS ahrs;
   Pose2d pose;
   SimpleMotorFeedforward feedforward;
   double kV,kS,kA;
+  DifferentialDriveKinematics kinematics;
+  PIDController anglePidController;
   
  
 
   /** Creates a new DriveTrain. */
   public DriveTrain() {
     leftmotorfront=new CANSparkMax(11,  MotorType.kBrushless);
-    leftmotorfront.setInverted(false);
+    // leftmotorfront.setInverted(false);
     leftmotorback=new CANSparkMax(12,  MotorType.kBrushless);
-    leftmotorback.setInverted(false);
+    // leftmotorback.setInverted(false);
     rightmotorfront=new CANSparkMax(22,  MotorType.kBrushless);
-    rightmotorfront.setInverted(true);
+    // rightmotorfront.setInverted(true);
     rightmotorback=new CANSparkMax(21,  MotorType.kBrushless);
-    rightmotorback.setInverted(true);
+    // rightmotorback.setInverted(true);
     leftmotors=new MotorControllerGroup(leftmotorfront,leftmotorback);
     rightmotors=new MotorControllerGroup(rightmotorfront,rightmotorback);
     drive=new DifferentialDrive(leftmotors, rightmotors);
@@ -83,36 +87,53 @@ public class DriveTrain extends SubsystemBase {
 
     ahrs=new AHRS(SPI.Port.kMXP);
     controller=new PIDController(1.1,0.07,0);
-    odom_drive=new DifferentialDriveOdometry(Rotation2d.fromDegrees(-ahrs.getAngle()));
+    anglePidController=new PIDController(1.1, 0, 0);
+    anglePidController.setIntegratorRange(-0.5, 0.5);
+    // anglePidController.setTolerance(2f);
+    
+    
     // Create a new SimpleMotorFeedforward with gains kS, kV, and kA
     feedforward = new SimpleMotorFeedforward(kS, kV, kA);
-    
-    
+    kinematics=new DifferentialDriveKinematics(1);
+    odom_drive=new DifferentialDriveOdometry(getHeading());
 
-  
-
-
-  
-
-  
+    leftmotorback.follow(leftmotorfront);
+    rightmotorback.follow(rightmotorfront);
+    leftmotorfront.setInverted(false);
+    rightmotorfront.setInverted(true);
 
     
+    
+  
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     // put smart dashboard here
-    // pose=odom_drive.update(Rotation2d.fromDegrees(-ahrs.getAngle()),(encleftf.getPosition() * Math.PI * Units.inchesToMeters(6)) / 7.31,
-    // (encrightf.getPosition() * Math.PI * Units.inchesToMeters(6)) / 7.31);
+    pose=odom_drive.update(getHeading(),leftencpos(),rightencpos());
     SmartDashboard.putNumber("angle POSE",-ahrs.getAngle());
     // SmartDashboard.putNumber("X", pose.getX());
     // SmartDashboard.putNumber("Y", pose.getY());
-    SmartDashboard.putNumber("Left", encleftf.getPosition() * Math.PI * Units.inchesToMeters(6)/7.31);//
+    SmartDashboard.putNumber("Left", encleftf.getPosition() * Math.PI * Units.inchesToMeters(6)/7.);//
     SmartDashboard.putNumber("Right", encrightf.getPosition() * Math.PI * Units.inchesToMeters(6)/7.31);
     
   }
+  public Rotation2d getHeading(){
+    return Rotation2d.fromDegrees(-ahrs.getAngle());
+  }
+  public DifferentialDriveWheelSpeeds getSpeeds(){
+    double leftspeed=(leftmotorfront.getEncoder().getVelocity()/7.31)*2*Math.PI*Units.inchesToMeters(3)/60;
+    double rightspeed=(rightmotorfront.getEncoder().getVelocity()/7.31)*2*Math.PI*Units.inchesToMeters(3)/60;
+    return new DifferentialDriveWheelSpeeds(leftspeed,rightspeed);
+  }
+  public double leftencpos(){
+    return  encleftb.getPosition() * Math.PI * Units.inchesToMeters(6)/7.31;
   
+}
+public double rightencpos(){
+  return encrightb.getPosition() * Math.PI * Units.inchesToMeters(6)/7.31;
+}
 
   public void driveWithJoysticks(Joystick joy,double speed){
     drive.arcadeDrive(-joy.getRawAxis(1)*speed,joy.getRawAxis(4)*speed);
@@ -123,29 +144,24 @@ public class DriveTrain extends SubsystemBase {
   public void driveForward(double speed){
     drive.tankDrive(speed,speed);
   }
-  public void drive1m(double left,double right){
-  
-    leftmotors.set(controller.calculate(left, 1)*0.20);
-    rightmotors.set(controller.calculate(right, 1)*0.20);
-    
-  }
-  public double leftencpos(){
-      return  encleftb.getPosition() * Math.PI * Units.inchesToMeters(6)/7.31;
-    // double right =  FR_encoder.getPosition() * Math.PI * Units.inchesToMeters(6)/3.488 * 0.488;
-  }
-  public double rightencpos(){
-    return encrightb.getPosition() * Math.PI * Units.inchesToMeters(6)/7.31;
-  }
   public void resetenc(){
     encleftb.setPosition(0);
     encleftf.setPosition(0);
     encrightf.setPosition(0);
     encrightb.setPosition(0);
   }
-  public double lim(double setp,double speed,double kp){
-    return (speed*0.3)/(setp*kp);
+  public void orient(double angle){
+   leftmotors.set( anglePidController.calculate(pose.getRotation().getDegrees(), angle)*0.20);
+   rightmotors.set(-anglePidController.calculate(pose.getRotation().getDegrees(), angle)*0.20);
   }
-  public void rotatetoangle(){
+  public void drive1m(double left,double right,double setp){
+  
+    leftmotors.set(controller.calculate(left, setp)*0.20);
+    rightmotors.set(controller.calculate(right, setp)*0.20);
+    
+  }
+  public void res(){
+    ahrs.reset();
+  }
 
-  }
 }
