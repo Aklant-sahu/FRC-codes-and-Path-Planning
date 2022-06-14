@@ -55,12 +55,14 @@ public class DriveTrain extends SubsystemBase {
   double kV,kS,kA;
   DifferentialDriveKinematics kinematics;
   PIDController anglePidController;
+  CANSparkMax intake;
   
  
 
   /** Creates a new DriveTrain. */
   public DriveTrain() {
     leftmotorfront=new CANSparkMax(11,  MotorType.kBrushless);
+    intake=new CANSparkMax(5,  MotorType.kBrushless);
     // leftmotorfront.setInverted(false);
     leftmotorback=new CANSparkMax(12,  MotorType.kBrushless);
     // leftmotorback.setInverted(false);
@@ -86,9 +88,9 @@ public class DriveTrain extends SubsystemBase {
     encrightb = rightmotorback.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
 
     ahrs=new AHRS(SPI.Port.kMXP);
-    controller=new PIDController(1.1,0.07,0);
-    anglePidController=new PIDController(1.1, 0, 0);
-    anglePidController.setIntegratorRange(-0.5, 0.5);
+    controller=new PIDController(1.2,0,0);
+    anglePidController=new PIDController(0.8, 0, 0);
+    // anglePidController.setIntegratorRange(-0.5, 0.5);
     // anglePidController.setTolerance(2f);
     
     
@@ -150,14 +152,17 @@ public double rightencpos(){
     encrightf.setPosition(0);
     encrightb.setPosition(0);
   }
-  public void orient(double angle){
-   leftmotors.set( anglePidController.calculate(pose.getRotation().getDegrees(), angle)*0.20);
-   rightmotors.set(-anglePidController.calculate(pose.getRotation().getDegrees(), angle)*0.20);
+  public double orient(double angle){
+    pose=odom_drive.update(getHeading(),leftencpos(),rightencpos());
+   leftmotors.set( -anglePidController.calculate(pose.getRotation().getDegrees(), angle)/250);
+   rightmotors.set(anglePidController.calculate(pose.getRotation().getDegrees(), angle)/250);
+   return (angle-pose.getRotation().getDegrees());
   }
-  public void drive1m(double left,double right,double setp){
+  public double drive1m(double left,double right,double setp){
   
-    leftmotors.set(controller.calculate(left, setp)*0.20);
-    rightmotors.set(controller.calculate(right, setp)*0.20);
+    leftmotors.set(controller.calculate(left, setp)*0.35);
+    rightmotors.set(controller.calculate(right, setp)*0.35);
+    return (setp-left);
     
   }
   public void res(){

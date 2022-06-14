@@ -125,8 +125,8 @@ public class DriveTrain extends SubsystemBase {
   }
   public void drive1m(double left,double right){
   
-    leftmotors.set(controller.calculate(left, 1)*0.20);
-    rightmotors.set(controller.calculate(right, 1)*0.20);
+    leftmotors.set(controller.calculate((left+right)/2, 1)*0.20);
+    rightmotors.set(controller.calculate((left+right)/2, 1)*0.20);
     
   }
   public double leftencpos(){
