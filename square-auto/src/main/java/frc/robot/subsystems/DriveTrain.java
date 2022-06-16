@@ -25,6 +25,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 // import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+
+import java.lang.ModuleLayer.Controller;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 
@@ -154,19 +157,25 @@ public double rightencpos(){
   }
   public double orient(double angle){
     pose=odom_drive.update(getHeading(),leftencpos(),rightencpos());
-   leftmotors.set( -anglePidController.calculate(pose.getRotation().getDegrees(), angle)/250);
-   rightmotors.set(anglePidController.calculate(pose.getRotation().getDegrees(), angle)/250);
-   return (angle-pose.getRotation().getDegrees());
+   leftmotors.set( -anglePidController.calculate(limitAngle(ahrs.getAngle()), angle)/250);
+   rightmotors.set(anglePidController.calculate(limitAngle(ahrs.getAngle()), angle)/250);
+   return (limitAngle(ahrs.getAngle()));
+  }
+  public double limitAngle(double angle){
+    return angle % 360;
   }
   public double drive1m(double left,double right,double setp){
   
     leftmotors.set(controller.calculate(left, setp)*0.35);
     rightmotors.set(controller.calculate(right, setp)*0.35);
+
     return (setp-left);
+    
     
   }
   public void res(){
     ahrs.reset();
   }
+  
 
 }

@@ -10,9 +10,6 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.DriveAuto;
-import frc.robot.commands.DriveWithJoysticks;
-import frc.robot.subsystems.DriveTrain;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -22,29 +19,13 @@ import frc.robot.subsystems.DriveTrain;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  DriveTrain driveTrain;
-  private final DriveWithJoysticks driveWithJoysticks;
   public static Joystick joystick1;
-  
-  
-  
-  
-  
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
-    public RobotContainer() {
-      // Configure the button bindings
-      joystick1=new Joystick(0);
-      driveTrain=new DriveTrain();
-      driveWithJoysticks=new DriveWithJoysticks(driveTrain);
-      driveWithJoysticks.addRequirements(driveTrain);
-      driveTrain.setDefaultCommand(driveWithJoysticks);
-  
-      
-      configureButtonBindings();
-    }
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-
+  public RobotContainer() {
+    // Configure the button bindings
+    configureButtonBindings();
+  }
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -60,13 +41,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-   return new SequentialCommandGroup(
-   new DriveAuto(driveTrain, false,1,0,false),new DriveAuto(driveTrain, true,1,90,false),
-   new DriveAuto(driveTrain, false,1,90,false),new DriveAuto(driveTrain, true,1,180,false),  
-     new DriveAuto(driveTrain, false,1,180,false),new DriveAuto(driveTrain, true,1,270,false),
-     new DriveAuto(driveTrain, false,1,-90,false),new DriveAuto(driveTrain, true,1,360,false));
-
+    // An ExampleCommand will run in autonomous
+    return new SequentialCommandGroup();
   }
-  // new DriveAuto(driveTrain, false,1,0,false),new DriveAuto(driveTrain, true,1,90,false),
-  //  new DriveAuto(driveTrain, false,1,0,false),new DriveAuto(driveTrain, true,1,90,false)
 }
