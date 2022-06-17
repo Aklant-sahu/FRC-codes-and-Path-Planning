@@ -13,19 +13,19 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final int initialX=0;
-    public static final int initialY=0;
+    public static final double initialX=-0.96336539;
+    public static final double initialY=-0.26819233;
 
 public static final int leftfrontid=11;
 public static final int leftbackid=12;
 public static final int rightfrontid=22;
 public static final int rightbackid=21;
 
-public static final double drivekp=1.2;
+public static final double drivekp=0.4;
 public static final double driveki=0;
 public static final double drivekd=0;
 
-public static final double anglekp=0.8;
+public static final double anglekp=0.4;
 public static final double angleki=0;
 public static final double anglekd=0;
 
