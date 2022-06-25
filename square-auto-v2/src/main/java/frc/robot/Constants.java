@@ -25,7 +25,7 @@ public static final double drivekp=50;
 public static final double driveki=0;
 public static final double drivekd=0;
 
-public static final double anglekp=1/20;
+public static final double anglekp=220;
 public static final double angleki=0;
 public static final double anglekd=0;
 

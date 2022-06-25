@@ -13,9 +13,13 @@ public class DriveAuto extends CommandBase {
   DriveTrain drivetrain;
   int counterx=0;
   int countery=0;
-  public DriveAuto(DriveTrain subsystem) {
+  boolean todo;
+  boolean ret;
+  public DriveAuto(DriveTrain subsystem,boolean todoo) {
     drivetrain=subsystem;
     addRequirements(drivetrain);
+    todo=todoo;
+    ret=false;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -24,20 +28,31 @@ public class DriveAuto extends CommandBase {
   public void initialize() {
     counterx=0;
     countery=0;
+   
+   
     
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.updatePose();
-    drivetrain.speedcontrol(drivetrain.getNextX(counterx), drivetrain.getNextY(countery));
-    if(Math.abs(drivetrain.getCurrX()-drivetrain.getNextX(counterx))<0.1 && Math.abs(drivetrain.getCurrX()-drivetrain.getNextX(counterx))<0.1 )
-    {
+   if (todo==false){
+    double[] speed=drivetrain.pidRotate(drivetrain.getNextX(counterx), drivetrain.getNextY(countery));
+    drivetrain.driveWith(speed[0], speed[1]);
+    ret=drivetrain.checkAng();
+    
+   }
+   else if( todo==true){
+    double[] speed=drivetrain.pidPath(drivetrain.getNextX(counterx), drivetrain.getNextY(countery));
+    drivetrain.driveWith(speed[0], speed[1]);
+    // if(Math.abs(drivetrain.getCurrX()-drivetrain.getNextX(counterx))<0.1 && Math.abs(drivetrain.getCurrX()-drivetrain.getNextX(counterx))<0.1 )
+    // {
+      
       counterx++;
       countery++;
     }
     
+    // }
    
   }
 

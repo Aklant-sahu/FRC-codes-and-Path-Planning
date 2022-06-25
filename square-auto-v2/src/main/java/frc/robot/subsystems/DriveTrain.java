@@ -88,7 +88,9 @@ public class DriveTrain extends SubsystemBase {
     pose=new Pose2d();
     ahrs=new AHRS(SPI.Port.kMXP);
     distPid=new PIDController(Constants.drivekp, Constants.driveki,Constants.drivekd);
+    distPid.setTolerance(0.1);
     anglePid=new PIDController(Constants.anglekp, Constants.angleki, Constants.anglekd);
+    anglePid.setTolerance(0.5);
     odom_drive=new DifferentialDriveOdometry(getangle());
     targetX=new double[] {Constants.initialX};
     targetY=new double[] {Constants.initialY};
@@ -96,47 +98,6 @@ public class DriveTrain extends SubsystemBase {
     currX=targetX[0];
     currY=targetY[0];
     // this trajectory is for anticlockwise rotation hence in this angle output would be positive since we taking -ahrs
-    tempx=new double[] {-0.96336539, -0.92764483, -0.92040757, -0.91713028, -0.85642696,
-      -0.74391983, -0.69560573, -0.68184656, -0.63539464, -0.62664364,
-      -0.61197963, -0.60721301, -0.60095767, -0.56841141, -0.49827373,
-      -0.4902082 , -0.48733684, -0.4678226 , -0.39706004, -0.37986176,
-      -0.36110509, -0.2991465 , -0.27579752, -0.2648729 , -0.25870977,
-      -0.18507905, -0.13395908, -0.12069669, -0.11300119, -0.02117251,
-       0.02366025,  0.03735388,  0.08139929,  0.3153676 ,  0.34473527,
-       0.36029111,  0.41294206,  0.47127605,  0.48696238,  0.49238501,
-       0.53839722,  0.54693925,  0.54718631,  0.6785002 ,  0.68481741,
-       0.83007592,  0.86204871,  0.88813557,  0.91821148,  0.93967139,
-       0.93967139,  0.91821148,  0.88813557,  0.86204871,  0.83007592,
-       0.68481741,  0.6785002 ,  0.54718631,  0.54693925,  0.53839722,
-       0.49238501,  0.48696238,  0.47127605,  0.41294206,  0.36029111,
-       0.34473527,  0.3153676 ,  0.08139929,  0.03735388,  0.02366025,
-      -0.02117251, -0.11300119, -0.12069669, -0.13395908, -0.18507905,
-      -0.25870977, -0.2648729 , -0.27579752, -0.2991465 , -0.36110509,
-      -0.37986176, -0.39706004, -0.4678226 , -0.48733684, -0.4902082 ,
-      -0.49827373, -0.56841141, -0.60095767, -0.60721301, -0.61197963,
-      -0.62664364, -0.63539464, -0.68184656, -0.69560573, -0.74391983,
-      -0.85642696, -0.91713028, -0.92040757, -0.92764483, -0.96336539};
-
-    tempy=new double[] {-0.26819233, -0.3734636 , -0.39096023, -0.39858757, -0.5162682 ,
-      -0.66826887, -0.71842374, -0.73149522, -0.77218757, -0.77930594,
-      -0.79087353, -0.79453909, -0.79928085, -0.82274448, -0.86701977,
-      -0.87160537, -0.87321406, -0.88382239, -0.91779264, -0.92504327,
-      -0.93252513, -0.9542072 , -0.96121576, -0.96428333, -0.9659551 ,
-      -0.98272364, -0.99098686, -0.99268943, -0.99359485, -0.99977584,
-      -0.99972006, -0.9993021 , -0.99668157, -0.94896959, -0.93869995,
-      -0.93283992, -0.9107573 , -0.88198576, -0.87342294, -0.87037751,
-      -0.84269119, -0.8371723 , -0.83701084, -0.73460022, -0.7287147 ,
-      -0.5576504 , -0.50682543, -0.45958156, -0.3960905 , -0.34207848,
-       0.34207848,  0.3960905 ,  0.45958156,  0.50682543,  0.5576504 ,
-       0.7287147 ,  0.73460022,  0.83701084,  0.8371723 ,  0.84269119,
-       0.87037751,  0.87342294,  0.88198576,  0.9107573 ,  0.93283992,
-       0.93869995,  0.94896959,  0.99668157,  0.9993021 ,  0.99972006,
-       0.99977584,  0.99359485,  0.99268943,  0.99098686,  0.98272364,
-       0.9659551 ,  0.96428333,  0.96121576,  0.9542072 ,  0.93252513,
-       0.92504327,  0.91779264,  0.88382239,  0.87321406,  0.87160537,
-       0.86701977,  0.82274448,  0.79928085,  0.79453909,  0.79087353,
-       0.77930594,  0.77218757,  0.73149522,  0.71842374,  0.66826887,
-       0.5162682 ,  0.39858757,  0.39096023,  0.3734636 ,  0.26819233};
 
   }
 
@@ -173,9 +134,13 @@ public class DriveTrain extends SubsystemBase {
   public void driveWithJoysticks(Joystick joy,double speed){
     drive.arcadeDrive(-joy.getRawAxis(1)*speed,joy.getRawAxis(4)*speed);
   }
+
+ public void arcade(double speed,double power){
+  drive.arcadeDrive(speed,power);
+ }
   public void driveWith(double speedleft,double speedright){
-   leftmotors.set(speedleft*0.3);
-   rightmotors.set(speedright*0.3);
+   leftmotors.set(speedleft);
+   rightmotors.set(speedright);
   }
   public void stopMotors(){
     drive.stopMotor();
@@ -210,9 +175,6 @@ public class DriveTrain extends SubsystemBase {
     encright.setPosition(0);
     
   }
-  // public void driveCurve(double speed,double power){
-
-  // }
   public boolean checkDist(){
     return distPid.atSetpoint();
   }
@@ -258,9 +220,8 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("Dir", theta_dir);
    
     // SmartDashboard.putNumber("speed",anglePid.calculate(0, d_theta *theta_dir));
-    anglePid.setSetpoint(d_theta * theta_dir);
-    trans_Lmot = distPid.calculate(0, d) - anglePid.calculate(0);
-    trans_Rmot = distPid.calculate(0, d) + anglePid.calculate(0);
+    trans_Lmot = distPid.calculate(0, d) - anglePid.calculate(0, d_theta * theta_dir);
+    trans_Rmot = distPid.calculate(0, d) + anglePid.calculate(0, d_theta * theta_dir);
     
 
    
@@ -357,7 +318,6 @@ public class DriveTrain extends SubsystemBase {
    
    
     // SmartDashboard.putNumber("speed",anglePid.calculate(0, d_theta *theta_dir));
-    anglePid.setSetpoint(d_theta * theta_dir);
     trans_Lmot = - anglePid.calculate(0, d_theta * theta_dir);
     trans_Rmot =  + anglePid.calculate(0, d_theta * theta_dir);
     
@@ -385,7 +345,6 @@ public class DriveTrain extends SubsystemBase {
     // Ang_Lmot=
       // Ang_Rmot=
   }
- 
   public double getCurrX() {
     return currX;
   }
@@ -409,6 +368,7 @@ public class DriveTrain extends SubsystemBase {
   public void setPose(){
     pose=odom_drive.update(getangle() ,Constants.initialX,Constants.initialY);
   }
+
 
 
 }

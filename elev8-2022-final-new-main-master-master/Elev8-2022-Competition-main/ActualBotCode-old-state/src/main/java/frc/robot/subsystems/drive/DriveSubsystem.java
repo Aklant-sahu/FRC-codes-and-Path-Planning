@@ -48,6 +48,7 @@ public class DriveSubsystem extends SubsystemBase {
   public double a_botXpose, b_botYpose, d_theta = 0.0, d = 0.0;
   public double[] x, y;
   public double angle, angletotake, trans_Lmot, trans_Rmot;
+ 
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -92,7 +93,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.FR_encoder.setPosition(0.0);
     this.BR_encoder.setPosition(0.0);
     this.FL_encoder.setPosition(0.0);
-    this.BL_encoder.setPosition(0.0);
+    this.BL_encoder.setPosition(0.0); 
   }
 
   public static double getNavxRoll() {
