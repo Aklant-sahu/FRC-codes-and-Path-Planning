@@ -53,13 +53,15 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new SequentialCommandGroup(new DriveAuto(driveTrain, true, false, 0, 1),
+    return new SequentialCommandGroup(
+    new DriveAuto(driveTrain, true, false, 0, 1),
     new DriveAuto(driveTrain, false, false, 0, 1),
     new DriveAuto(driveTrain, true, false, 1, 1),
     new DriveAuto(driveTrain, false, false, 1, 1),
     new DriveAuto(driveTrain, true, false, 1, 0)
     ,new DriveAuto(driveTrain, false, false, 1, 0),
     new DriveAuto(driveTrain, true, false, 0, 0),
-    new DriveAuto(driveTrain, false, false, 0, 0));
+    new DriveAuto(driveTrain, false, false, 0, 0)
+    );
   }
 }

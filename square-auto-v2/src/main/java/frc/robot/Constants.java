@@ -21,15 +21,15 @@ public static final int leftbackid=12;
 public static final int rightfrontid=22;
 public static final int rightbackid=21;
 
-public static final double drivekp=50;
+public static final double drivekp=0.2;
 public static final double driveki=0;
 public static final double drivekd=0;
 
-public static final double anglekp=220;
+public static final double anglekp=0.005;
 public static final double angleki=0;
 public static final double anglekd=0;
 
-public static final double maxdistpidout=0.35;
-public static final double maxanglepidout=0.3;
+public static final double maxdistpidout=0.25;
+public static final double maxanglepidout=0.25;
 
 }

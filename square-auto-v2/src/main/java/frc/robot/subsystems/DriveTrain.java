@@ -112,6 +112,11 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("Right", encright.getPosition() * Math.PI * Units.inchesToMeters(6)/7.31);
     
   }
+  public void resetPos(){
+    resetenc();
+    odom_drive.resetPosition(new Pose2d(),Rotation2d.fromDegrees(0));
+    
+  }
   public Rotation2d getangle(){
     return Rotation2d.fromDegrees(-ahrs.getAngle());
     // ahrs.getangle gives continuous angle output to 
@@ -261,16 +266,21 @@ public class DriveTrain extends SubsystemBase {
     currY = pose.getY();
 
     double d = Math.sqrt(Math.pow((currX - x), 2) + Math.pow((currY - y), 2));
+    // double d = (currX - x) + (currY - y);
  
     
-    SmartDashboard.putNumber("d", d);
-    SmartDashboard.putNumber("x", currX);
-    SmartDashboard.putNumber("y", currY);
-  
+   
+    
  
     // SmartDashboard.putNumber("speed",anglePid.calculate(0, d_theta *theta_dir));
     trans_Lmot = distPid.calculate(0, d);
-    trans_Rmot = distPid.calculate(0, d);
+    trans_Rmot = distPid.calculate(0,d);
+    double error=d;
+    SmartDashboard.putNumber("d", d);
+    SmartDashboard.putNumber("x", currX);
+    SmartDashboard.putNumber("y", currY);
+    SmartDashboard.putNumber("error", error);
+    
 
     // Equal Weightage for Both PIDs
     if (Math.abs(trans_Lmot) > Constants.maxdistpidout
@@ -286,7 +296,7 @@ public class DriveTrain extends SubsystemBase {
       }
 
     }
-    double speed[] = { trans_Lmot, trans_Rmot };
+    double speed[] = { trans_Lmot, trans_Rmot ,error};
     // double speed[] = { Constants.maxdistpidout,
     // Constants.maxdistpidout };
 
@@ -300,7 +310,7 @@ public class DriveTrain extends SubsystemBase {
 
     angle = -ahrs.getAngle() % 360;
     angletotake = Math.toDegrees(Math.atan2((y - currY), (x - currX)));  //atan2 gives -180 se 180 degrees range with ccw being positive.
-    angletotake = Math.toDegrees(Math.atan2(1, 1));
+    // angletotake = Math.toDegrees(Math.atan2(1, 1));
 
     // Clip the Angle from [-180 to 180] -> [0 to 360]
     angletotake = (angletotake + 720) % 360;
@@ -320,7 +330,11 @@ public class DriveTrain extends SubsystemBase {
     // SmartDashboard.putNumber("speed",anglePid.calculate(0, d_theta *theta_dir));
     trans_Lmot = - anglePid.calculate(0, d_theta * theta_dir);
     trans_Rmot =  + anglePid.calculate(0, d_theta * theta_dir);
-    
+    double error=d_theta * theta_dir;
+    SmartDashboard.putNumber("angletotake",d_theta);
+    SmartDashboard.putNumber("x", currX);
+    SmartDashboard.putNumber("y", currY);
+    SmartDashboard.putNumber("error", error);
 
 
     // Equal Weightage for Both PIDs
@@ -337,7 +351,7 @@ public class DriveTrain extends SubsystemBase {
       }
 
     }
-    double speed[] = { trans_Lmot, trans_Rmot };
+    double speed[] = { trans_Lmot, trans_Rmot,error };
     // double speed[] = { Constants.maxdistpidout,
     // Constants.maxdistpidout };
 

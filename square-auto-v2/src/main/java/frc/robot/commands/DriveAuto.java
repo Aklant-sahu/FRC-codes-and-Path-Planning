@@ -44,7 +44,10 @@ public class DriveAuto extends CommandBase {
       double[] speed=driveTrain.pidRotate(x,y);
       driveTrain.driveWith(speed[0], speed[1]);
       ret=driveTrain.checkAng();
-      
+      if (Math.abs(speed[2])<0.5){
+        ret=true;
+    }
+    System.out.println("rotating robot");
      
     
      
@@ -53,7 +56,10 @@ public class DriveAuto extends CommandBase {
      
       double[] speed=driveTrain.pidForward(x,y);
       driveTrain.driveWith(speed[0], speed[1]);
-      ret=driveTrain.checkDist();
+      if (Math.abs(speed[2])<0.1){
+          ret=true;
+      }
+
       
       System.out.println("moving robot straight");
       // }
