@@ -1,5 +1,5 @@
 ## Consists of code for the drive Train for the FRC Robotics competition along iwth implemented custom object detection and custom in-house path planning algorithm with trapezoidal motion profiling.  
-#Path Planning Demonstartion 
+# Path Planning Demonstartion 
 
 https://drive.google.com/file/d/1KQd3FurCf19cArN4ZD0116nJjDlimDrC/view?usp=sharing   
 
